@@ -1,0 +1,8 @@
+# vs code, iPython
+.vscode
+.ipynb_checkpoints
+# vim swap files
+*.swp
+
+# compiled python
+__pycache__
