@@ -6,3 +6,5 @@
 
 # compiled python
 __pycache__
+# virtualenv
+/env/
