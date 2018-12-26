@@ -561,21 +561,31 @@ def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False):
 
 
 def multifight(att_fleet, att_upgrades, def_fleet, def_upgrades, nb_sims=2000):
-  att_wins = 0
-  def_wins = 0
-  att_cps_lost = 0
-  def_cps_lost = 0
-  for i in range(nb_sims):
-    nb_att, nb_def, next_ships, att_cp_lost, def_cp_lost = fight(
-                att_fleet, Upgrades(attack=3,defense=3),
-                def_fleet, Upgrades(attack=1,defense=1,fighter=3))
-    att_cps_lost += att_cp_lost
-    def_cps_lost += def_cp_lost
-    if nb_att == 0:
-        def_wins += 1
-    else:
-        att_wins += 1
+    att_wins = 0
+    def_wins = 0
+    att_cps_lost = 0
+    def_cps_lost = 0
+    for i in range(nb_sims):
+        nb_att, nb_def, next_ships, att_cp_lost, def_cp_lost = fight(
+            att_fleet, att_upgrades,
+            def_fleet, def_upgrades
+        )
+        att_cps_lost += att_cp_lost
+        def_cps_lost += def_cp_lost
+        if nb_att == 0:
+            def_wins += 1
+        else:
+            att_wins += 1
 
-  print('{:5} sims, ATT won {:2.0f}% [lost:{:.1f}], DEF won {:2.0f}% [lost:{:.1f}]'.format(
-    nb_sims, 100. * att_wins / nb_sims, 1. * att_cps_lost / nb_sims,
-             100. * def_wins / nb_sims, 1. * def_cps_lost / nb_sims))
+    print('{:5} sims, ATT won {:2.0f}% [lost:{:.1f}], DEF won {:2.0f}% [lost:{:.1f}]'.format(
+        nb_sims,
+        100. * att_wins / nb_sims, 1. * att_cps_lost / nb_sims,
+        100. * def_wins / nb_sims, 1. * def_cps_lost / nb_sims
+        )
+    )
+
+    print('{:2.1f}%,{:.1f},{:2.1f}%,{:.1f}'.format(
+        100. * att_wins / nb_sims, 1. * att_cps_lost / nb_sims,
+        100. * def_wins / nb_sims, 1. * def_cps_lost / nb_sims
+        )
+    )
