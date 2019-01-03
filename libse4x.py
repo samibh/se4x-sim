@@ -526,9 +526,10 @@ def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False):
                 if hits > 0:
                     if immortal == def_ship['side'] and not immortal_used:
                         immortal_used = True
+                        hits -= 1
                         if verbose:
                             print("** Immortal used **")
-                    else:
+                    if hits > 0:
                         def_ship['hp'] -= hits
                         if verbose:
                             print("{} {} [{}] hit by {} [{}] (roll:{}/{})".format(def_ship['side'], def_ship['name'], i_def, att_ship['name'], i_att, roll, tohit))
