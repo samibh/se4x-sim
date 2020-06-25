@@ -145,13 +145,13 @@ S_CARRIER      = {'name':'Carrier'      , 'cost': 5, 'prio':5, 'att':3, 'def':1,
 S_FIGHTER      = {'name':'Fighter'      , 'cost': 5, 'prio':2, 'att':5, 'def':0, 'size':1}
 
 S_TRANSPORT    = {'name':'Transport'    , 'cost': 6, 'prio':5, 'att':1, 'def':1, 'size':1}
-S_MILITIA      = {'name':'Militia'      , 'cost': 0, 'prio':5, 'att':5, 'def':0, 'size':1}
-S_INFANTRY     = {'name':'Infantry'     , 'cost': 2, 'prio':4, 'att':5, 'def':1, 'size':1}
-S_MARINE_ATT   = {'name':'Marines (att)', 'cost': 3, 'prio':3, 'att':6, 'def':1, 'size':2}
-S_MARINE_DEF   = {'name':'Marines (def)', 'cost': 3, 'prio':4, 'att':5, 'def':1, 'size':2}
-S_HI_ATT       = {'name':'Hvy inf (att)', 'cost': 3, 'prio':4, 'att':4, 'def':2, 'size':2}
-S_HI_DEF       = {'name':'Hvy inf (def)', 'cost': 3, 'prio':3, 'att':6, 'def':2, 'size':2}
-S_GRAV         = {'name':'Grav Armor'   , 'cost': 4, 'prio':3, 'att':6, 'def':2, 'size':2}
+S_MILITIA      = {'name':'Militia'      , 'cost': 0, 'prio':5, 'att':5, 'def':0, 'size':1, 'ground': True}
+S_INFANTRY     = {'name':'Infantry'     , 'cost': 2, 'prio':4, 'att':5, 'def':1, 'size':1, 'ground': True}
+S_MARINE_ATT   = {'name':'Marines (att)', 'cost': 3, 'prio':3, 'att':6, 'def':1, 'size':2, 'ground': True}
+S_MARINE_DEF   = {'name':'Marines (def)', 'cost': 3, 'prio':4, 'att':5, 'def':1, 'size':2, 'ground': True}
+S_HI_ATT       = {'name':'Hvy inf (att)', 'cost': 3, 'prio':4, 'att':4, 'def':2, 'size':2, 'ground': True}
+S_HI_DEF       = {'name':'Hvy inf (def)', 'cost': 3, 'prio':3, 'att':6, 'def':2, 'size':2, 'ground': True}
+S_GRAV         = {'name':'Grav Armor'   , 'cost': 4, 'prio':3, 'att':6, 'def':2, 'size':2, 'ground': True}
 
 S_BASE         = {'name':'Base'         , 'cost':12, 'prio':1, 'att':7, 'def':2, 'size':3}
 S_SHIPYARD     = {'name':'Shipyard'     , 'cost': 6, 'prio':3, 'att':3, 'def':1, 'size':1}
@@ -182,7 +182,7 @@ class Upgrades:
     """Describes upgrades applicable to a ship"""
     # pylint: disable=too-many-instance-attributes, too-few-public-methods
     def __init__(self, attack=0, defense=0, boarding=0, security=0, cloaking=0, fighter=0,
-                 tactics=0, immortal=False, giant=False, hivemind=False):
+                 tactics=0, transport=0, immortal=False, giant=False, hivemind=False):
         # Combat tech
         self.attack = attack
         self.defense = defense
@@ -191,6 +191,7 @@ class Upgrades:
         self.cloaking = cloaking
         self.fighter = fighter
         self.tactics = tactics
+        self.transport = transport
         # Race bonus
         self.immortal = immortal
         self.giant = giant
@@ -205,6 +206,9 @@ class Upgrades:
 # =============================================================================
 # Private methods
 # =============================================================================
+
+ATTACKER = 'ATT'
+DEFENDER = 'DEF'
 
 def roll_die():
     """Simulate a single roll of a 10-sided die"""
@@ -271,12 +275,16 @@ def roll_attack(att_ship, def_ship, att_upgrades, def_upgrades, bonus_fleet=0, n
     roll = roll_die()
 
     # fleet size bonus, doesn't apply to boarding, and only benefits Fighters vs Titans
-    if not 'Boarding' in att_name and ( 'Fighter' in att_name or (not 'Titan' in def_ship['name'])):
+    if not 'Boarding' in att_name and ('Fighter' in att_name or (not 'Titan' in def_ship['name'])) and not att_ship.get('ground'):
         tohit += bonus_fleet
 
     # cloaked ships have +1 attack in first round of combat
     if nb_round == 1 and 'clkd' in att_name:
         tohit += 1
+
+    # Attacker's ground combat units don't fire on first round unless they have ground 3
+    if nb_round == 1 and att_ship.get('ground') and att_upgrades.transport < 3 and att_ship['side'] == ATTACKER:
+        return 0, 10, 0
 
     if att_upgrades.hivemind and nb_round >= 4:
         tohit += 1
@@ -299,9 +307,6 @@ def roll_attack(att_ship, def_ship, att_upgrades, def_upgrades, bonus_fleet=0, n
         result *= 2
 
     return result, roll, tohit
-
-ATTACKER = 'ATT'
-DEFENDER = 'DEF'
 
 def find_defender(ships, side):
     """Crude method to find something approximating the best target when attacking"""
