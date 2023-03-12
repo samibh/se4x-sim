@@ -113,7 +113,7 @@ Credits:
 """
 
 import random
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 from copy import deepcopy
 from operator import itemgetter
 
@@ -595,3 +595,18 @@ def multifight(att_fleet, att_upgrades, def_fleet, def_upgrades, nb_sims=2000):
         100. * def_wins / nb_sims, 1. * def_cps_lost / nb_sims
         )
     )
+
+def rolls_distribution(nb_dice, tohit):
+    nb_sims = 2000
+    results = defaultdict(int)
+    for i in range(nb_sims):
+        hits = 0
+        for i in range(nb_dice):
+            roll = roll_die()
+            if roll <= tohit:
+                hits += 1
+        results[hits] += 1
+    return {
+        k: [v, "{:.0f}%".format(100.*v/nb_sims)]
+        for k,v in dict(sorted(results.items())).items()
+    }
