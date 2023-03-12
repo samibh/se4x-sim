@@ -309,7 +309,17 @@ def roll_attack(att_ship, def_ship, att_upgrades, def_upgrades, bonus_fleet=0, n
     return result, roll, tohit
 
 def find_defender(ships, side):
-    """Crude method to find something approximating the best target when attacking"""
+    """
+    Crude method to find something approximating the best target when attacking
+    ships is a list of extended ship dictionaries
+        {
+            'name': 'Militia', 'cost': 0, 'prio': 5, 'att': 5, 'def': 0, 'size': 1,
+            'ground': True, 'order': 5.8, 'hp': 1, 'upgrades': Upgrades(...), 'hasfired': False, 'skipuntil': 0,
+            'side': 'DEF'
+        }
+    TODO: more useful shape, hard to tell which ship has the highest attack for example, as upgrades aren't applied
+          (not trivial for all cases though, as it may depend on ship<->ship interactions, eg point defense
+    """
     enemies = [x for x in ships if x['side'] != side and x['hp'] > 0]
     if not enemies:
         return None
@@ -365,7 +375,7 @@ def show_roll(roll, tohit, iatt, attacker, idef, defender):
 # Public methods
 # =============================================================================
 
-def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False):
+def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False, asteroids=False, nebula=False):
     """
     Simulate a full fight between att_fleet and def_fleet.
     Input :
@@ -390,6 +400,7 @@ def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False):
     TODO : racials (in progress)
     TODO : better priority targeting
     TODO : different upgrades for each ship in a fleet
+    TODO : asteroids/nebula probably buggy for boarding
     """
 
     if att_upgrades.immortal:
@@ -399,6 +410,13 @@ def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False):
     else:
         immortal = None
 
+    if asteroids:
+        att_upgrades.attack = 0
+        def_upgrades.attack = 0
+    if nebula:
+        att_upgrades.defense = 0
+        def_upgrades.defense = 0
+
     # CP lost on either side
     att_cp_lost = 0
     def_cp_lost = 0
@@ -407,7 +425,10 @@ def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False):
     def_ships = []
     for x in att_fleet:
         ship = dict(x)
-        ship['order'] = ship['prio'] + .9 - att_upgrades.tactics / 5
+        if asteroids or nebula:
+            ship['order'] = .9 - att_upgrades.tactics / 5
+        else:
+            ship['order'] = ship['prio'] + .9 - att_upgrades.tactics / 5
         ship['hp'] = ship['size']
         ship['upgrades'] = att_upgrades
         ship['hasfired'] = False
@@ -418,7 +439,10 @@ def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False):
         att_ships.append(ship)
     for x in def_fleet:
         ship = dict(x)
-        ship['order'] = ship['prio'] + .8 - def_upgrades.tactics / 5
+        if asteroids or nebula:
+            ship['order'] = .8 - def_upgrades.tactics / 5
+        else:
+            ship['order'] = ship['prio'] + .8 - def_upgrades.tactics / 5
         ship['hp'] = ship['size']
         ship['upgrades'] = def_upgrades
         ship['hasfired'] = False
@@ -449,6 +473,9 @@ def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False):
         if capture:
             ships_sorted = sorted(ships_sorted, key=itemgetter('order'))
             capture = False
+
+        # If there are fighters AND point defense scouts, have them fire in A
+        # TODO
 
         # Reset all "has_fired" flags
         for x in ships_sorted:
@@ -566,7 +593,7 @@ def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False):
     return (nb_att, nb_def, next_ships, att_cp_lost, def_cp_lost)
 
 
-def multifight(att_fleet, att_upgrades, def_fleet, def_upgrades, nb_sims=2000):
+def multifight(att_fleet, att_upgrades, def_fleet, def_upgrades, nb_sims=2000, asteroids=False, nebula=False):
     att_wins = 0
     def_wins = 0
     att_cps_lost = 0
@@ -574,7 +601,8 @@ def multifight(att_fleet, att_upgrades, def_fleet, def_upgrades, nb_sims=2000):
     for i in range(nb_sims):
         nb_att, nb_def, next_ships, att_cp_lost, def_cp_lost = fight(
             att_fleet, att_upgrades,
-            def_fleet, def_upgrades
+            def_fleet, def_upgrades,
+            asteroids=asteroids, nebula=nebula,
         )
         att_cps_lost += att_cp_lost
         def_cps_lost += def_cp_lost
