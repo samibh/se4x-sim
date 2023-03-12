@@ -611,16 +611,18 @@ def multifight(att_fleet, att_upgrades, def_fleet, def_upgrades, nb_sims=2000, a
         else:
             att_wins += 1
 
-    print('{:5} sims, ATT won {:2.0f}% [lost:{:.1f}], DEF won {:2.0f}% [lost:{:.1f}]'.format(
+    print('{:5} sims, ATT({}) won {:2.0f}% [lost:{:.1f}], DEF({}) won {:2.0f}% [lost:{:.1f}]'.format(
         nb_sims,
-        100. * att_wins / nb_sims, 1. * att_cps_lost / nb_sims,
-        100. * def_wins / nb_sims, 1. * def_cps_lost / nb_sims
+        len(att_fleet), 100. * att_wins / nb_sims, 1. * att_cps_lost / nb_sims,
+        len(def_fleet), 100. * def_wins / nb_sims, 1. * def_cps_lost / nb_sims,
         )
     )
 
-    print('{:2.1f}%,{:.1f},{:2.1f}%,{:.1f}'.format(
-        100. * att_wins / nb_sims, 1. * att_cps_lost / nb_sims,
-        100. * def_wins / nb_sims, 1. * def_cps_lost / nb_sims
+    print('{:2.0f}%-{:2.0f}%/{:.0f}-{:.0f}'.format(
+        100. * att_wins / nb_sims,
+        100. * def_wins / nb_sims,
+        1. * att_cps_lost / nb_sims,
+        1. * def_cps_lost / nb_sims,
         )
     )
 
