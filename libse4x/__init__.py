@@ -375,7 +375,7 @@ def show_roll(roll, tohit, iatt, attacker, idef, defender):
 # Public methods
 # =============================================================================
 
-def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False, asteroids=False, nebula=False):
+def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False, asteroids=False, nebula=False, stop_at_round=None):
     """
     Simulate a full fight between att_fleet and def_fleet.
     Input :
@@ -583,6 +583,10 @@ def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False, aster
         if verbose:
             print('Combat round {} finished. Ships left : {} ATT vs. {} DEF'.format(nb_round, nb_att, nb_def))
             print('-'*80)
+        if stop_at_round and nb_round >= stop_at_round:
+            if verbose:
+                print("Stopping after round {}".format(nb_round))
+            break
         nb_round += 1
 
     if verbose:
@@ -593,16 +597,18 @@ def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False, aster
     return (nb_att, nb_def, next_ships, att_cp_lost, def_cp_lost)
 
 
-def multifight(att_fleet, att_upgrades, def_fleet, def_upgrades, nb_sims=2000, asteroids=False, nebula=False):
+def multifight(att_fleet, att_upgrades, def_fleet, def_upgrades, nb_sims=2000, asteroids=False, nebula=False, stop_at_round=None):
     att_wins = 0
     def_wins = 0
     att_cps_lost = 0
     def_cps_lost = 0
+    verbose = True if nb_sims == 1 else False
     for i in range(nb_sims):
         nb_att, nb_def, next_ships, att_cp_lost, def_cp_lost = fight(
             att_fleet, att_upgrades,
             def_fleet, def_upgrades,
-            asteroids=asteroids, nebula=nebula,
+            asteroids=asteroids, nebula=nebula, verbose=verbose,
+            stop_at_round=stop_at_round,
         )
         att_cps_lost += att_cp_lost
         def_cps_lost += def_cp_lost
