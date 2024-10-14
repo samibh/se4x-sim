@@ -632,6 +632,26 @@ def multifight(att_fleet, att_upgrades, def_fleet, def_upgrades, nb_sims=2000, a
         )
     )
 
+def multisim(attackers, defenders, nb_sims=2000, asteroids=False, nebula=False):
+    """
+    Runs multiple simulations using multifight, all the combinations of attacking and defending fleets
+    against each other.
+    Input
+        fleets:
+            [
+                ([S_SC]*12, Upgrades(attack=1)),
+                ([S_SC]*8+[S_CA]*2, Upgrades(attack=1)),
+                ([S_SC]*8+[S_CA], Upgrades(attack=1, defense=1)),
+            ]
+    """
+    for att_fleet, att_upgrades in attackers:
+        for def_fleet, def_upgrades in defenders:
+            print("-"*60)
+            #print(att_fleet)
+            #print(def_fleet)
+            multifight(att_fleet, att_upgrades, def_fleet, def_upgrades, nb_sims, asteroids, nebula)
+
+
 def rolls_distribution(nb_dice, tohit):
     nb_sims = 2000
     results = defaultdict(int)
