@@ -666,3 +666,25 @@ def rolls_distribution(nb_dice, tohit):
         k: [v, "{:.0f}%".format(100.*v/nb_sims)]
         for k,v in dict(sorted(results.items())).items()
     }
+
+
+def rolls_distribution_complex(tohits):
+    """
+    Takes a list of (tohit) and simulates the distribution of total number of hits
+    Usage
+        rolls_distribution_complex([4,4,5,6])
+        rolls_distribution_complex([3]*4)       equivalent to rolls_distribution(4, 3)
+    """
+    nb_sims = 2000
+    results = defaultdict(int)
+    for i in range(nb_sims):
+        hits = 0
+        for tohit in tohits:
+            roll = roll_die()
+            if roll <= tohit:
+                hits += 1
+        results[hits] += 1
+    return {
+        k: [v, "{:.0f}%".format(100.*v/nb_sims)]
+        for k,v in dict(sorted(results.items())).items()
+    }
