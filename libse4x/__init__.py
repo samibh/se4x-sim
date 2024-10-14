@@ -426,9 +426,9 @@ def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False, aster
     for x in att_fleet:
         ship = dict(x)
         if asteroids or nebula:
-            ship['order'] = .9 - att_upgrades.tactics / 5
+            ship['order'] = .9 - (att_upgrades.tactics + ship.get('tactics', 0)) / 5
         else:
-            ship['order'] = ship['prio'] + .9 - att_upgrades.tactics / 5
+            ship['order'] = ship['prio'] + .9 - (att_upgrades.tactics + ship.get('tactics', 0)) / 5
         ship['hp'] = ship['size']
         ship['upgrades'] = att_upgrades
         ship['hasfired'] = False
@@ -440,9 +440,9 @@ def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False, aster
     for x in def_fleet:
         ship = dict(x)
         if asteroids or nebula:
-            ship['order'] = .8 - def_upgrades.tactics / 5
+            ship['order'] = .8 - (def_upgrades.tactics + ship.get('tactics', 0)) / 5
         else:
-            ship['order'] = ship['prio'] + .8 - def_upgrades.tactics / 5
+            ship['order'] = ship['prio'] + .8 - (def_upgrades.tactics + ship.get('tactics', 0)) / 5
         ship['hp'] = ship['size']
         ship['upgrades'] = def_upgrades
         ship['hasfired'] = False
@@ -548,7 +548,7 @@ def fight(att_fleet, att_upgrades, def_fleet, def_upgrades, verbose=False, aster
                         prio_malus = 0
                         def_cp_lost -= def_ship['cost']
                         att_cp_lost += def_ship['cost']
-                    def_ship['order'] = def_ship['prio'] + .8 + prio_malus - def_ship['upgrades'].tactics / 5
+                    def_ship['order'] = def_ship['prio'] + .8 + prio_malus - (def_ship['upgrades'].tactics + def_ship.get('tactics', 0)) / 5
                     # captured ships can't fire for one round
                     def_ship['skipuntil'] = nb_round + 2
                     if verbose:
