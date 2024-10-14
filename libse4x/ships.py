@@ -29,6 +29,7 @@ S_CV           = {'name':'Carrier'      , 'cost': 5, 'prio':5, 'att':3, 'def':1,
 S_CARRIER      = S_CV
 S_F            = {'name':'Fighter'      , 'cost': 5, 'prio':2, 'att':5, 'def':0, 'size':1}
 S_FIGHTER      = S_F
+S_BV           = {'name':'Carrier adv'  , 'cost': 5, 'prio':2, 'att':5, 'def':1, 'size':3}
 
 S_T            = {'name':'Transport'    , 'cost': 6, 'prio':5, 'att':1, 'def':1, 'size':1}
 S_TRANSPORT    = S_T
